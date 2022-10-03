@@ -1,4 +1,6 @@
 
+import resolveRequest from './resolveRequest'
+
 class DB {
   private dbName: string
   private db: IDBDatabase | null = null
@@ -22,6 +24,7 @@ class DB {
         console.log('对象仓库创建成功')
       }
     }
+    
     // 数据库打开成功
     request.onsuccess = (event: any) => {
       console.log('数据库打开成功', event)
@@ -43,12 +46,11 @@ class DB {
       ...data,
       updateTime: new Date().getTime()
     })
-    request.onsuccess = (event) => {
+    resolveRequest(request, (event: any) => {
       console.log('数据写入成功', event)
-    }
-    request.onerror = (event) => {
-      console.error('数据写入失败', event)
-    }
+    }, (err: any) => {
+      console.error('数据写入失败', err)
+    })
   }
 
   // 删除
@@ -57,12 +59,11 @@ class DB {
     const tx = this.db.transaction(storeName, 'readwrite')
     const store = tx.objectStore(storeName)
     const request = store.delete(id)
-    request.onsuccess = (event) => {
+    resolveRequest(request, (event: any) => {
       console.log('数据删除成功', event)
-    }
-    request.onerror = (event) => {
-      console.error('数据删除失败', event)
-    }
+    }, (err: any) => {
+      console.error('数据删除失败', err)
+    })
   }
 
   // 查询
@@ -71,12 +72,11 @@ class DB {
     const tx = this.db.transaction(storeName, 'readwrite')
     const store = tx.objectStore(storeName)
     const request = store.getAll()
-    request.onsuccess = (event: any) => {
+    resolveRequest(request, (event: any) => {
       console.log('数据查询成功', event.target.result)
-    }
-    request.onerror = (event) => {
+    }, (err: any) => {
       console.error('数据查询失败', event)
-    }
+    })
   }
 
   public getItem (storeName: string, id: string | number) {
@@ -84,12 +84,11 @@ class DB {
     const tx = this.db.transaction(storeName, 'readwrite')
     const store = tx.objectStore(storeName)
     const request = store.get(id)
-    request.onsuccess = (event: any) => {
+    resolveRequest(request, (event: any) => {
       console.log('数据查询成功', event.target.result)
-    }
-    request.onerror = (event) => {
+    }, (err: any) => {
       console.error('数据查询失败', event)
-    }
+    })
   }
 }
 
