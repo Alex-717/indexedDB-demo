@@ -39,9 +39,8 @@ class DB {
   // 3、数据的增删改查
   // 增 改
   public updateItem (storeName: string, data: any) {
-    if (!this.db) return
-    const tx = this.db.transaction(storeName, 'readwrite')
-    const store = tx.objectStore(storeName)
+    const store = this.getStore(storeName)
+    if (!store) return
     const request = store.put({
       ...data,
       updateTime: new Date().getTime()
@@ -55,9 +54,8 @@ class DB {
 
   // 删除
   public deleteItem (storeName: string, id: string | number) {
-    if (!this.db) return
-    const tx = this.db.transaction(storeName, 'readwrite')
-    const store = tx.objectStore(storeName)
+    const store = this.getStore(storeName)
+    if (!store) return
     const request = store.delete(id)
     resolveRequest(request, (event: any) => {
       console.log('数据删除成功', event)
@@ -68,9 +66,8 @@ class DB {
 
   // 查询
   public getAll (storeName: string) {
-    if (!this.db) return
-    const tx = this.db.transaction(storeName, 'readwrite')
-    const store = tx.objectStore(storeName)
+    const store = this.getStore(storeName)
+    if (!store) return
     const request = store.getAll()
     resolveRequest(request, (event: any) => {
       console.log('数据查询成功', event.target.result)
@@ -80,15 +77,21 @@ class DB {
   }
 
   public getItem (storeName: string, id: string | number) {
-    if (!this.db) return
-    const tx = this.db.transaction(storeName, 'readwrite')
-    const store = tx.objectStore(storeName)
+    const store = this.getStore(storeName)
+    if (!store) return
     const request = store.get(id)
     resolveRequest(request, (event: any) => {
       console.log('数据查询成功', event.target.result)
     }, (err: any) => {
       console.error('数据查询失败', event)
     })
+  }
+
+  private getStore (storeName: string) {
+    if (!this.db) return null
+    const tx = this.db.transaction(storeName, 'readwrite')
+    const store = tx.objectStore(storeName)
+    return store
   }
 }
 
